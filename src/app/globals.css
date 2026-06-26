@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #fff8ec;
+  --color-coal: #3d2314;
+  --color-ember: #e8590c;
+  --color-mustard: #f4a700;
+  --color-chili: #c92a2a;
+  --color-cream-dark: #f5ecd8;
+
+  --background: var(--color-cream);
+  --foreground: var(--color-coal);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-cream: var(--color-cream);
+  --color-coal: var(--color-coal);
+  --color-ember: var(--color-ember);
+  --color-mustard: var(--color-mustard);
+  --color-chili: var(--color-chili);
+  --color-cream-dark: var(--color-cream-dark);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-manrope), system-ui, sans-serif;
+}
+
+h1, h2, h3, h4,
+.font-display {
+  font-family: var(--font-fraunces), serif;
+}
+
+/* Borde "crispy" — textura empanada irregular usada como firma visual */
+.crispy-edge {
+  clip-path: polygon(
+    0% 4%, 3% 0%, 8% 2%, 13% 0%, 19% 3%, 25% 0%, 31% 2%, 37% 0%,
+    43% 3%, 49% 0%, 55% 2%, 61% 0%, 67% 3%, 73% 0%, 79% 2%, 85% 0%,
+    91% 3%, 97% 0%, 100% 4%, 100% 96%, 97% 100%, 91% 97%, 85% 100%,
+    79% 98%, 73% 100%, 67% 97%, 61% 100%, 55% 98%, 49% 100%, 43% 97%,
+    37% 100%, 31% 98%, 25% 100%, 19% 97%, 13% 100%, 8% 98%, 3% 100%, 0% 96%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbar fino para carrito/listas */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-ember);
+  border-radius: 999px;
+}
