@@ -7,6 +7,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
@@ -89,6 +90,14 @@ const business = {
 
 async function migrate() {
   console.log("Conectando a Firestore proyecto:", firebaseConfig.projectId);
+
+  const auth = getAuth(app);
+  await signInWithEmailAndPassword(
+    auth,
+    process.env.MIGRATE_EMAIL,
+    process.env.MIGRATE_PASSWORD
+  );
+  console.log("Autenticado como:", process.env.MIGRATE_EMAIL);
 
   console.log(`Migrando ${categories.length} categorías...`);
   for (const cat of categories) {
