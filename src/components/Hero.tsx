@@ -66,18 +66,20 @@ export default function Hero({ business }: HeroProps) {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="relative flex justify-center"
         >
-          <div className="crispy-edge w-64 h-64 sm:w-80 sm:h-80 bg-gradient-to-br from-mustard to-ember flex items-center justify-center shadow-2xl overflow-hidden">
+          <div className="crispy-edge w-64 h-64 sm:w-80 sm:h-80 bg-white flex items-center justify-center shadow-2xl overflow-hidden">
             {business.logo && business.logo !== "/logo.png" ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={business.logo}
                 alt={business.name}
-                className="w-4/5 h-4/5 object-contain"
+                className="w-full h-full object-contain p-4"
               />
             ) : (
-              <span className="text-7xl sm:text-8xl" role="img" aria-label="Pollo frito">
-                🍗
-              </span>
+              <div className="w-full h-full bg-gradient-to-br from-mustard to-ember flex items-center justify-center">
+                <span className="text-7xl sm:text-8xl" role="img" aria-label="Pollo frito">
+                  🍗
+                </span>
+              </div>
             )}
           </div>
         </motion.div>

@@ -16,18 +16,9 @@ export default function Header({ business, cartCount, onCartClick }: HeaderProps
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm border-b-2 border-coal/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="#inicio" className="flex items-center gap-2">
-          {business.logo && business.logo !== "/logo.png" ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={business.logo}
-              alt={business.name}
-              className="h-10 w-auto object-contain"
-            />
-          ) : (
-            <span className="font-display text-2xl font-bold text-chili">
-              {business.name}
-            </span>
-          )}
+          <span className="font-display text-2xl font-bold text-chili">
+            {business.name}
+          </span>
         </a>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-semibold">
