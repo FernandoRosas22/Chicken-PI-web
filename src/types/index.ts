@@ -1,3 +1,8 @@
+export interface ProductVariant {
+  name: string;
+  extraPrice: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -8,6 +13,7 @@ export interface Product {
   badges?: string[];
   available: boolean;
   order: number;
+  variants?: ProductVariant[];
   createdAt?: number;
   updatedAt?: number;
 }
@@ -61,4 +67,6 @@ export interface BusinessSettings {
 export interface CartItem {
   product: Product;
   quantity: number;
+  variantName?: string;
+  variantExtraPrice?: number;
 }

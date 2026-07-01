@@ -21,8 +21,8 @@ export function buildWhatsAppUrl(
   items: CartItem[],
   checkout: CheckoutData
 ): string {
+  const fmt = (n: number) => new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", minimumFractionDigits: 0 }).format(n);
   const lines: string[] = [];
-
   lines.push("🛒 NUEVO PEDIDO");
   lines.push("");
   lines.push("Cliente:");
@@ -35,35 +35,21 @@ export function buildWhatsAppUrl(
   lines.push(checkout.address || "No especificada");
   lines.push("");
   lines.push("PEDIDO");
-
   items.forEach((item) => {
-    lines.push(
-      "* " + item.product.name + " x" + item.quantity
-    );
+    const variantLabel = item.variantName ? " (" + item.variantName + ")" : "";
+    const unitPrice = item.product.price + (item.variantExtraPrice || 0);
+    lines.push("* " + item.product.name + variantLabel + " x" + item.quantity + " - " + fmt(unitPrice * item.quantity));
   });
-
-  const total = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-
+  const total = items.reduce((sum, item) => sum + (item.product.price + (item.variantExtraPrice || 0)) * item.quantity, 0);
   lines.push("");
   lines.push("Total:");
-  lines.push(
-    new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      minimumFractionDigits: 0,
-    }).format(total)
-  );
+  lines.push(fmt(total));
   lines.push("");
   lines.push("Forma de pago:");
   lines.push(checkout.paymentMethod || "No especificada");
   lines.push("");
   lines.push("Pedido generado desde Chicken PI Web");
-
-  const message = encodeURIComponent(lines.join("\n"));
-  return "https://wa.me/" + whatsappNumber + "?text=" + message;
+  return "https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent(lines.join("\n"));
 }
 
 export function cn(...classes: (string | boolean | undefined | null)[]): string {

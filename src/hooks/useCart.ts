@@ -9,40 +9,30 @@ export function useCart() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
-  // Leemos localStorage recién al montar en el cliente (no existe en el
-  // server), por eso no podemos usar lazy initial state: causaría un
-  // mismatch de hidratación SSR vs cliente. Este es un caso legítimo de
-  // sincronización con un sistema externo en el montaje inicial.
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setItems(JSON.parse(stored));
-      }
-    } catch (error) {
-      console.error("Error leyendo carrito guardado:", error);
-    }
+      if (stored) setItems(JSON.parse(stored));
+    } catch {}
     setHydrated(true);
   }, []);
 
   useEffect(() => {
-    if (hydrated) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
+    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addItem = useCallback((product: Product, quantity: number = 1) => {
+  const addItem = useCallback((product: Product, quantity: number = 1, variantName?: string, variantExtraPrice?: number) => {
     setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+      const key = product.id + (variantName || "");
+      const existing = prev.find((item) => item.product.id + (item.variantName || "") === key);
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id
+          item.product.id + (item.variantName || "") === key
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity, variantName, variantExtraPrice }];
     });
   }, []);
 
@@ -55,31 +45,13 @@ export function useCart() {
       setItems((prev) => prev.filter((item) => item.product.id !== productId));
       return;
     }
-    setItems((prev) =>
-      prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
+    setItems((prev) => prev.map((item) => item.product.id === productId ? { ...item, quantity } : item));
   }, []);
 
-  const clearCart = useCallback(() => {
-    setItems([]);
-  }, []);
+  const clearCart = useCallback(() => { setItems([]); }, []);
 
-  const total = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
-
+  const total = items.reduce((sum, item) => sum + (item.product.price + (item.variantExtraPrice || 0)) * item.quantity, 0);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  return {
-    items,
-    addItem,
-    removeItem,
-    updateQuantity,
-    clearCart,
-    total,
-    itemCount,
-  };
+  return { items, addItem, removeItem, updateQuantity, clearCart, total, itemCount };
 }

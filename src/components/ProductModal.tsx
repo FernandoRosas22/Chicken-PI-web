@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Product } from "@/types";
+import { Product, ProductVariant } from "@/types";
 import { formatPrice } from "@/lib/utils";
 
 interface ProductModalProps {
   product: Product | null;
   onClose: () => void;
-  onAddToCart: (product: Product, quantity: number) => void;
+  onAddToCart: (
+    product: Product,
+    quantity: number,
+    variantName?: string,
+    variantExtraPrice?: number
+  ) => void;
 }
 
 export default function ProductModal({
@@ -17,12 +22,24 @@ export default function ProductModal({
   onAddToCart,
 }: ProductModalProps) {
   const [quantity, setQuantity] = useState(1);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
 
   if (!product) return null;
 
+  const hasVariants = product.variants && product.variants.length > 0;
+  const extraPrice = selectedVariant ? selectedVariant.extraPrice : 0;
+  const unitPrice = product.price + extraPrice;
+  const totalPrice = unitPrice * quantity;
+
   const handleAdd = () => {
-    onAddToCart(product, quantity);
+    onAddToCart(
+      product,
+      quantity,
+      selectedVariant ? selectedVariant.name : undefined,
+      selectedVariant ? selectedVariant.extraPrice : undefined
+    );
     setQuantity(1);
+    setSelectedVariant(null);
     onClose();
   };
 
@@ -71,9 +88,46 @@ export default function ProductModal({
                 {product.name}
               </h2>
               <p className="text-coal/70 mb-4">{product.description}</p>
+
               <span className="font-bold text-ember text-2xl">
-                {formatPrice(product.price)}
+                {formatPrice(unitPrice)}
               </span>
+              {extraPrice > 0 && (
+                <span className="text-coal/50 text-sm ml-2">
+                  (+{formatPrice(extraPrice)} por {selectedVariant?.name})
+                </span>
+              )}
+
+              {hasVariants && (
+                <div className="mt-5">
+                  <p className="text-sm font-semibold mb-2">Elegí tu variante:</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => setSelectedVariant(null)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${
+                        !selectedVariant
+                          ? "border-ember bg-ember text-cream"
+                          : "border-coal/15 text-coal hover:border-ember"
+                      }`}
+                    >
+                      Simple · {formatPrice(product.price)}
+                    </button>
+                    {product.variants!.map((variant) => (
+                      <button
+                        key={variant.name}
+                        onClick={() => setSelectedVariant(variant)}
+                        className={`px-4 py-2 rounded-xl text-sm font-bold border-2 transition-colors ${
+                          selectedVariant?.name === variant.name
+                            ? "border-ember bg-ember text-cream"
+                            : "border-coal/15 text-coal hover:border-ember"
+                        }`}
+                      >
+                        {variant.name} · {formatPrice(product.price + variant.extraPrice)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="p-5 border-t border-coal/10 flex items-center gap-4 shrink-0">
@@ -100,7 +154,7 @@ export default function ProductModal({
                 className="flex-1 bg-ember hover:bg-chili disabled:bg-coal/20 disabled:cursor-not-allowed transition-colors text-cream font-bold py-3 rounded-xl"
               >
                 {product.available
-                  ? `Agregar · ${formatPrice(product.price * quantity)}`
+                  ? "Agregar · " + formatPrice(totalPrice)
                   : "Agotado"}
               </button>
             </div>

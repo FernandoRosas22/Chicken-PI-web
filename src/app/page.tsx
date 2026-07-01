@@ -54,7 +54,7 @@ export default function Home() {
       <ProductModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        onAddToCart={cart.addItem}
+        onAddToCart={(product, quantity, variantName, variantExtraPrice) => cart.addItem(product, quantity, variantName, variantExtraPrice)}
       />
 
       <CartDrawer
