@@ -62,7 +62,7 @@ export default function TrustSection({ business }: TrustSectionProps) {
               rel="noopener noreferrer"
               className="text-coal/70 hover:text-ember block"
             >
-              Instagram @chickenpi2025
+              Instagram @{business.social.instagram.split("instagram.com/")[1]?.replace("/", "") || "chickenpi2025"}
             </a>
           )}
         </div>
