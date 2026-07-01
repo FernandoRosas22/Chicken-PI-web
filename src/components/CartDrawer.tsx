@@ -71,6 +71,9 @@ export default function CartDrawer({
                 <ul className="space-y-4">
                   {items.map((item, idx) => (
                     <li key={item.product.id + (item.variantName || "") + idx} className="flex gap-3 items-start border-b border-coal/5 pb-4">
+                      <div className="w-12 h-12 rounded-lg bg-cream-dark flex items-center justify-center shrink-0 overflow-hidden">
+                        {item.product.image && !item.product.image.startsWith("/placeholder") ? (<img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />) : (<span className="text-xl">🍗</span>)}
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-sm leading-tight">
                           {item.product.name}{item.variantName && <span className="ml-1 text-ember font-normal">({item.variantName})</span>}
