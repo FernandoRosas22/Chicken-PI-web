@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useIsOpen } from "@/hooks/useIsOpen";
 import { BusinessSettings } from "@/types";
 
 interface HeaderProps {
@@ -11,11 +12,16 @@ interface HeaderProps {
 
 export default function Header({ business, cartCount, onCartClick }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isOpen, label } = useIsOpen(business);
 
   return (
     <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-sm border-b-2 border-coal/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <a href="#inicio" className="flex items-center gap-2">
+          <span className={"hidden sm:inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full " + (isOpen ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600")}>
+            <span className={"w-1.5 h-1.5 rounded-full " + (isOpen ? "bg-green-500" : "bg-red-500")} />
+            {label}
+          </span>
           <span className="font-display text-2xl font-bold text-chili">
             {business.name}
           </span>
