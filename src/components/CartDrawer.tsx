@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CartItem } from "@/types";
-import { formatPrice, buildWhatsAppUrl } from "@/lib/utils";
+import { formatPrice, buildWhatsAppUrl, CheckoutData } from "@/lib/utils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -15,6 +15,13 @@ interface CartDrawerProps {
   onClearCart: () => void;
 }
 
+const emptyCheckout: CheckoutData = {
+  customerName: "",
+  phone: "",
+  address: "",
+  paymentMethod: "Efectivo",
+};
+
 export default function CartDrawer({
   isOpen,
   onClose,
@@ -25,7 +32,7 @@ export default function CartDrawer({
   onClearCart,
 }: CartDrawerProps) {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [customerName, setCustomerName] = useState("");
+  const [checkout, setCheckout] = useState<CheckoutData>(emptyCheckout);
 
   const total = items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -33,12 +40,15 @@ export default function CartDrawer({
   );
 
   const handleCheckout = () => {
-    const url = buildWhatsAppUrl(whatsappNumber, items, customerName);
+    const url = buildWhatsAppUrl(whatsappNumber, items, checkout);
     window.open(url, "_blank");
     onClearCart();
     setCheckoutOpen(false);
+    setCheckout(emptyCheckout);
     onClose();
   };
+
+  const inputClass = "w-full border border-coal/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-ember bg-white";
 
   return (
     <AnimatePresence>
@@ -74,7 +84,7 @@ export default function CartDrawer({
                 <div className="h-full flex flex-col items-center justify-center text-center text-coal/50">
                   <span className="text-5xl mb-3">🍗</span>
                   <p>Tu carrito está vacío.</p>
-                  <p className="text-sm">¡Agregá algo rico del menú!</p>
+                  <p className="text-sm">Agregá algo rico del menú!</p>
                 </div>
               ) : (
                 <ul className="space-y-4">
@@ -93,12 +103,7 @@ export default function CartDrawer({
                         <div className="flex items-center gap-2 mt-2">
                           <div className="flex items-center border border-coal/15 rounded-lg">
                             <button
-                              onClick={() =>
-                                onUpdateQuantity(
-                                  item.product.id,
-                                  item.quantity - 1
-                                )
-                              }
+                              onClick={() => onUpdateQuantity(item.product.id, item.quantity - 1)}
                               className="w-7 h-7 flex items-center justify-center text-sm font-bold"
                               aria-label="Restar"
                             >
@@ -108,12 +113,7 @@ export default function CartDrawer({
                               {item.quantity}
                             </span>
                             <button
-                              onClick={() =>
-                                onUpdateQuantity(
-                                  item.product.id,
-                                  item.quantity + 1
-                                )
-                              }
+                              onClick={() => onUpdateQuantity(item.product.id, item.quantity + 1)}
                               className="w-7 h-7 flex items-center justify-center text-sm font-bold"
                               aria-label="Sumar"
                             >
@@ -157,16 +157,46 @@ export default function CartDrawer({
                   <div className="space-y-3">
                     <input
                       type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Tu nombre (opcional)"
-                      className="w-full border border-coal/15 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-ember"
+                      value={checkout.customerName}
+                      onChange={(e) => setCheckout({ ...checkout, customerName: e.target.value })}
+                      placeholder="Tu nombre *"
+                      className={inputClass}
                     />
+                    <input
+                      type="tel"
+                      value={checkout.phone}
+                      onChange={(e) => setCheckout({ ...checkout, phone: e.target.value })}
+                      placeholder="Teléfono *"
+                      className={inputClass}
+                    />
+                    <input
+                      type="text"
+                      value={checkout.address}
+                      onChange={(e) => setCheckout({ ...checkout, address: e.target.value })}
+                      placeholder="Dirección de entrega *"
+                      className={inputClass}
+                    />
+                    <select
+                      value={checkout.paymentMethod}
+                      onChange={(e) => setCheckout({ ...checkout, paymentMethod: e.target.value })}
+                      className={inputClass}
+                    >
+                      <option value="Efectivo">Efectivo</option>
+                      <option value="Transferencia">Transferencia</option>
+                      <option value="Débito">Débito</option>
+                    </select>
                     <button
                       onClick={handleCheckout}
-                      className="w-full bg-[#25D366] hover:opacity-90 transition-opacity text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2"
+                      disabled={!checkout.customerName || !checkout.phone || !checkout.address}
+                      className="w-full bg-[#25D366] hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-white font-bold py-3.5 rounded-xl flex items-center justify-center gap-2"
                     >
                       Enviar pedido por WhatsApp
+                    </button>
+                    <button
+                      onClick={() => setCheckoutOpen(false)}
+                      className="w-full text-center text-sm text-coal/50 hover:text-coal"
+                    >
+                      Volver al carrito
                     </button>
                   </div>
                 )}

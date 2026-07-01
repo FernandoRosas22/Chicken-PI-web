@@ -9,26 +9,36 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
-/**
- * Construye la URL de WhatsApp para realizar un pedido.
- * Recibe el número como parámetro (no lo importa directamente)
- * para mantener la función testeable y desacoplada.
- */
+export interface CheckoutData {
+  customerName: string;
+  phone: string;
+  address: string;
+  paymentMethod: string;
+}
+
 export function buildWhatsAppUrl(
   whatsappNumber: string,
   items: CartItem[],
-  customerName?: string
+  checkout: CheckoutData
 ): string {
   const lines: string[] = [];
 
-  lines.push(`¡Hola! Quiero hacer un pedido en Chicken PI:`);
+  lines.push("🛒 NUEVO PEDIDO");
   lines.push("");
+  lines.push("Cliente:");
+  lines.push(checkout.customerName || "No especificado");
+  lines.push("");
+  lines.push("Teléfono:");
+  lines.push(checkout.phone || "No especificado");
+  lines.push("");
+  lines.push("Dirección:");
+  lines.push(checkout.address || "No especificada");
+  lines.push("");
+  lines.push("PEDIDO");
 
   items.forEach((item) => {
     lines.push(
-      `• ${item.quantity}x ${item.product.name} - ${formatPrice(
-        item.product.price * item.quantity
-      )}`
+      "* " + item.product.name + " x" + item.quantity
     );
   });
 
@@ -38,15 +48,22 @@ export function buildWhatsAppUrl(
   );
 
   lines.push("");
-  lines.push(`Total: ${formatPrice(total)}`);
-
-  if (customerName) {
-    lines.push("");
-    lines.push(`Nombre: ${customerName}`);
-  }
+  lines.push("Total:");
+  lines.push(
+    new Intl.NumberFormat("es-AR", {
+      style: "currency",
+      currency: "ARS",
+      minimumFractionDigits: 0,
+    }).format(total)
+  );
+  lines.push("");
+  lines.push("Forma de pago:");
+  lines.push(checkout.paymentMethod || "No especificada");
+  lines.push("");
+  lines.push("Pedido generado desde Chicken PI Web");
 
   const message = encodeURIComponent(lines.join("\n"));
-  return `https://wa.me/${whatsappNumber}?text=${message}`;
+  return "https://wa.me/" + whatsappNumber + "?text=" + message;
 }
 
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
